@@ -12,7 +12,7 @@ export default function Form(){
         </div>
         <label className='text-sm sm:text-md' htmlFor="url">URL:</label>
         <input placeholder='https://www.youtube.com/watch?v=123456' className='w-full py-1 sm:py-2 mt-1 text-xs sm:text-sm px-3 text-black border outline-none transition duration-300 focus:border-orange-400 border-spacing-1 border-slate-300' type="text" id='url' name='url' />
-        <button className='w-full p-2 sm:text-md text-sm sm:p-3 mt-3 bg-stone-900 hover:bg-green-700 active:bg-green-500'>Search</button>
+        <button className='w-full p-2 sm:text-md text-sm sm:p-3 mt-3 bg-stone-900 hover:bg-green-700 active:bg-green-500 transition duration-300'>Search</button>
     </form>
     )
 }
