@@ -1,6 +1,7 @@
 import Footer from '@/components/Footer'
 import Form from '../components/Form'
 import Image from 'next/image'
+import Notification from '@/components/Notification'
 
 
 export default function Home() {
@@ -9,6 +10,7 @@ export default function Home() {
     <main className="">
       <Form/>
       <Footer/>
+      <Notification/>
     </main>
   )
 }

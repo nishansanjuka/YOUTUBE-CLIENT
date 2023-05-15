@@ -3,7 +3,26 @@
 @tailwind utilities;
 
 
+::-webkit-scrollbar{
+    width: 1px;
+    background-color: darkgray;
+}
 
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 1px darkgray; 
+    border-radius: 5px;
+}
+   
+  /* Handle */
+::-webkit-scrollbar-thumb {
+    background: green; 
+    border-radius: 5px;
+}
+
+  /* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+    background: darkgreen; 
+}
 @layer components {
     .land-header{
         @apply absolute;
@@ -25,10 +44,26 @@
         animation-delay: 3.6s;
     }
 
+    .anim-notification{
+        transform: translateY(-500px);
+        animation: notify-anim 1s forwards;
+        animation-delay: 4s;
+    }
+
     @keyframes terms-anim {
         0%{
             opacity: 0;
             transform: translateY(-10px);
+        }
+        100%{
+            opacity: 1;
+            transform: translateY(0px);
+        }
+    }
+
+    @keyframes notify-anim {
+        0%{
+            transform: translateY(-500px);
         }
         100%{
             opacity: 1;
@@ -55,4 +90,9 @@
             @apply top-0
         }
     }
+}
+
+.gradient{
+    background: rgb(19,249,185);
+    background: linear-gradient(90deg, rgba(19,249,185,1) 0%, rgba(76,0,255,1) 100%);
 }
