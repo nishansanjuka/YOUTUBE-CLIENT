@@ -150,7 +150,7 @@ export default function VideoContainer({data}:Props) {
             color="#CBCBCB"
             size={5}
           />)}
-        </button> : <button disabled className='w-fit hover:bg-green-500 active:bg-violet-700 transition duration-500 px-5 py-2 font-extralight bg-green-700 text-white rounded text-xs disabled:bg-red-800'>Can't Download</button>}
+        </button> : <button disabled className='w-fit hover:bg-green-500 active:bg-violet-700 transition duration-500 px-5 py-2 font-extralight bg-green-700 text-white rounded text-xs disabled:bg-red-800'>Can&apos;t Download</button>}
         {IsData && (
           <div className='flex items-center mt-3 space-x-2'>
             <span className='relative w-full bg-zinc-900 h-[1px] '>
