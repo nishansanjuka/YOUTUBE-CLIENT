@@ -1,21 +1,24 @@
 "use client";
 import {AiOutlineLink} from 'react-icons/ai';
 import { GetSongs } from '@/app/_actions';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setYoutubeData } from '@/app/Redux/Features/youtube/youtubeSlice';
+import { setIsSearching } from '@/app/Redux/Features/search/searchSlice';
 import { redirect } from 'next/navigation';
 import {BeatLoader} from 'react-spinners';
 import React,{useState} from 'react';
+import { Rootstate } from '@/app/Redux/store';
 
 export default function Form(){
     const dispatch = useDispatch();
-    const [IsSearching, setIsSearching] = useState(false);
+    const IsSearching:boolean = useSelector((state:Rootstate) => state.search.value);
 
-    const HandleSubmit = async(data:FormData) => {
+    async function HandleSubmit(data:FormData){
+        dispatch(setIsSearching(true));
         try {
-            setIsSearching(true);
             const videoData:Video[] = await GetSongs(data);
             dispatch(setYoutubeData(videoData));
+
         } catch (error:any) {
             throw new Error(`It's looks like you did something wrong! check your url`)
         }

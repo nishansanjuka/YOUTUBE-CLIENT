@@ -15,11 +15,6 @@ type Props = {
 
 export default function VideoContainer({data}:Props) {
 
-  const override: CSSProperties = {
-    display: "block",
-    margin: "0 auto",
-    borderColor: "red",
-  };
 
   const [videoId, setvideoId] = useState<string>("");
   const [IsData, setIsData] = useState<boolean>(false);
@@ -38,19 +33,23 @@ export default function VideoContainer({data}:Props) {
   }
 
   useEffect(() => {
-    if(data.kind === 'youtube#playlistItem')
+    if(data.status && data.status.privacyStatus === "public")
     {
-      setvideoId(data.snippet.resourceId.videoId);
-      durationforId = data.snippet.resourceId.videoId;
+      if(data.kind === 'youtube#playlistItem')
+      {
+        setvideoId(data.snippet.resourceId.videoId);
+        durationforId = data.snippet.resourceId.videoId;
+      }
+      else if(data.kind === 'youtube#video'){
+        setvideoId(data.id);
+        durationforId = data.id;
+      }
+      else
+      {
+        throw new Error(`un recognized response kind contact developer (INTERNAL SERVER ERROR)`);
+      }
     }
-    else if(data.kind === 'youtube#video'){
-      setvideoId(data.id);
-      durationforId = data.id;
-    }
-    else
-    {
-      throw new Error(`un recognized response kind type! TYPE : ${data.kind}`);
-    }
+    
   }, [data])  
 
 
@@ -75,7 +74,6 @@ export default function VideoContainer({data}:Props) {
 
   async function DownloadProgress(progressEvent:any) {
     const percentage = Math.floor((progressEvent.loaded / progressEvent.total)*100);
-    console.log(percentage);
     const percentageText = `${percentage}` + "%" as string;
     if(Progressbar.current && ProgressbarText.current)
     {
@@ -90,8 +88,6 @@ export default function VideoContainer({data}:Props) {
     setIsData(true);
     try
     {
-      const duration = await GetDuration(videoId)
-      console.log(duration);
       const res = await axios.get(`https://youtube-mp3-api.onrender.com/get-mp3?youtube=https://www.youtube.com/watch?v=${videoId}` , options as any);
       setIsDownloading(false);
       try
@@ -100,11 +96,15 @@ export default function VideoContainer({data}:Props) {
       }
       catch(e:any)
       {
+        setIsDownloading(false);
+        setIsData(false);
         throw new Error(e.message);
       }
     }
     catch(e:any)
     {
+      setIsDownloading(false);
+      setIsData(false);
       console.log(e.message)
     }
   }

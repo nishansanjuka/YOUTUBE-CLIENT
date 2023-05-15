@@ -11,7 +11,7 @@ const initialState:youtubeState = {
 }
 
 export const youtubeSlice = createSlice({
-    name:'counter',
+    name:'youtube',
     initialState,
     reducers:{
         setYoutubeData: (state , action) => {

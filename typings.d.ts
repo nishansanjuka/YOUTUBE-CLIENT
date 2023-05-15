@@ -1,4 +1,5 @@
 type Video = {
+    etag:string,
     kind:string,
     id:string,
     snippet:{
@@ -16,6 +17,9 @@ type Video = {
     },
     contentDetails:{
         duration?:string
+    },
+    status?:{
+        privacyStatus:"public"|"private"|null
     }
 }
 

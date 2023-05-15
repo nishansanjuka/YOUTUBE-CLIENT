@@ -3,11 +3,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import counterReducer from './Features/counter/counterSlice';
 import youtubeSlice from "./Features/youtube/youtubeSlice";
+import searchSlice from "./Features/search/searchSlice";
 
 export const store = configureStore({
     reducer:{
         counter:counterReducer,
-        youtube:youtubeSlice
+        youtube:youtubeSlice,
+        search:searchSlice
     }
 })
 
