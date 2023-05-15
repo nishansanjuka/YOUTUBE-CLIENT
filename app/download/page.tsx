@@ -1,10 +1,10 @@
 "use client";
-import React , {useEffect , useState} from 'react'
+import React from 'react'
 import VideoContainer from '@/components/VideoContainer';
 import {useSelector} from 'react-redux';
 import { Rootstate } from '../Redux/store';
 
-const page = async() => {
+const Download = async() => {
   const VideoData = useSelector((state:Rootstate) => state.youtube.video);
 
   return (
@@ -20,4 +20,4 @@ const page = async() => {
   )
 }
 
-export default page;
+export default Download;
