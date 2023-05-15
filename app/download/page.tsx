@@ -4,7 +4,7 @@ import VideoContainer from '@/components/VideoContainer';
 import {useSelector} from 'react-redux';
 import { Rootstate } from '../Redux/store';
 
-export default async function page() {
+const page = async() => {
   const VideoData = useSelector((state:Rootstate) => state.youtube.video);
 
   return (
@@ -19,3 +19,5 @@ export default async function page() {
     </div>
   )
 }
+
+export default page;
