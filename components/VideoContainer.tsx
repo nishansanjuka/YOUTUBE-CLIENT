@@ -2,10 +2,12 @@
 import {useEffect , useState , useRef, CSSProperties} from 'react';
 import Image from 'next/image';
 import React from 'react'
-import axios from 'axios';
+import axios, { AxiosProgressEvent } from 'axios';
 import { BeatLoader  } from 'react-spinners';
-
 import { GetDuration } from '@/app/_actions';
+import { Stream } from 'stream';
+const concat = require('concat-stream');
+import { Readable } from 'stream';
 
 
 let durationforId:string;
@@ -24,12 +26,13 @@ export default function VideoContainer({data}:Props) {
   const [Duration, setDuration] = useState<string>("");
   const [DurationObject, setDurationObject] = useState<DurationData | null>(null);
   const options:AxData = {
-    responseType:'blob',
+    responseType:'arraybuffer',
     onDownloadProgress :DownloadProgress,
     headers:{
       Authorization:"Bearer Ew-iPP6QvLR_jl26Scq5Ox8zmQ0De-B_iduYQaJMvULbU2Nh9X1hn_e79zR1EV53KRs",
       "Content-Type":"application/x-www-form-urlencoded"
-    }
+    },
+    timeout:3600000
   }
 
   useEffect(() => {
@@ -52,7 +55,6 @@ export default function VideoContainer({data}:Props) {
     
   }, [data])  
 
-
   useEffect(() => {
     const dos = async() => {
       const duration:DurationData = await GetDuration(durationforId);
@@ -72,13 +74,22 @@ export default function VideoContainer({data}:Props) {
 
 
 
-  async function DownloadProgress(progressEvent:any) {
-    const percentage = Math.floor((progressEvent.loaded / progressEvent.total)*100);
-    const percentageText = `${percentage}` + "%" as string;
-    if(Progressbar.current && ProgressbarText.current)
-    {
-      ProgressbarText.current.textContent = `${percentageText}`;
-      Progressbar.current.style.width = percentageText;
+  async function DownloadProgress(progressEvent:AxiosProgressEvent) {
+    try {
+      if(progressEvent.total)
+      {
+        const percentage = Math.floor((progressEvent.loaded / progressEvent.total)*100);
+        const percentageText = `${percentage}` + "%" as string;
+        if(Progressbar.current && ProgressbarText.current)
+        {
+          ProgressbarText.current.textContent = `${percentageText}`;
+          Progressbar.current.style.width = percentageText;
+        }
+      }
+      
+      
+    } catch (error) {
+      console.log(error);
     }
 
   }
@@ -88,27 +99,37 @@ export default function VideoContainer({data}:Props) {
     setIsData(true);
     try
     {
-      const res = await axios.get(`https://youtube-mp3-api.onrender.com/get-mp3?youtube=https://www.youtube.com/watch?v=${videoId}` , options as any);
-      setIsDownloading(false);
+      const BASE_URL = 'https://youtube-mp3-api.onrender.com';
+      // const BASE_URL_LOCAL = 'http://localhost:5252';
+      const res = await axios.get(`${BASE_URL}/get-mp3?youtube=https://www.youtube.com/watch?v=${videoId}` , options as any);
+      const audioBuffer = Buffer.from(res.data);
       try
       {
-        await downloadBlob(res.data , `${data.snippet.title}.mp3`);
+        await downloadBlob(new Blob([audioBuffer]), `${data.snippet.title}.mp3`);
+        if(Progressbar.current && ProgressbarText.current)
+        {
+            ProgressbarText.current.textContent = '0%';
+            Progressbar.current.style.width = "0%";
+        }
+        setIsDownloading(false);
+        setIsData(false);
       }
       catch(e:any)
       {
         setIsDownloading(false);
         setIsData(false);
+        console.log(e);
         throw new Error(e.message);
+        
       }
     }
     catch(e:any)
     {
       setIsDownloading(false);
       setIsData(false);
-      console.log(e.message)
+      console.log(e);
     }
   }
-
 
   async function downloadBlob(blob:Blob, filename:string) {
     return await new Promise(async(resolve:any,reject:any) => {
@@ -143,14 +164,14 @@ export default function VideoContainer({data}:Props) {
         <h1 className=' text-white uppercase md:text-sm xl:text-lg mb-2'>{data.snippet.title}</h1>
         <p className='text-neutral-400 text-xs mb-2 font-light'>youtube video address: <a target='_blank' className='underline underline-offset-2' href={`https://www.youtube.com/watch?v=${videoId}`}>{`https://www.youtube.com/watch?v=${videoId}`}</a></p>
         {Duration && (<p className='text-neutral-500 text-xs font-light mb-2'>Duration - {Duration}</p>)}
-        {DurationObject && DurationObject?.minutes < 5 ? <button onClick={HandleDownload} className='w-fit flex items-center hover:bg-green-500 active:bg-violet-700 transition duration-500 px-5 py-2 font-extralight bg-green-700 text-white rounded text-xs'>
+        <button onClick={HandleDownload} className='w-fit flex items-center hover:bg-green-500 active:bg-violet-700 transition duration-500 px-5 py-2 font-extralight bg-green-700 text-white rounded text-xs'>
           {IsDownloading ? "Downloading" :"Download"}
           {IsDownloading && (<BeatLoader 
             className='ml-2'
             color="#CBCBCB"
             size={5}
           />)}
-        </button> : <button disabled className='w-fit hover:bg-green-500 active:bg-violet-700 transition duration-500 px-5 py-2 font-extralight bg-green-700 text-white rounded text-xs disabled:bg-red-800'>Can&apos;t Download</button>}
+        </button>
         {IsData && (
           <div className='flex items-center mt-3 space-x-2'>
             <span className='relative w-full bg-zinc-900 h-[1px] '>

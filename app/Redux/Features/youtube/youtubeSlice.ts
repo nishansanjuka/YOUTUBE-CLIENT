@@ -3,7 +3,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 export interface youtubeState {
-    video:Video[] | null
+    video?:Video[] | null
 }
 
 const initialState:youtubeState = {

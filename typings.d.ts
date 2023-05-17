@@ -24,12 +24,13 @@ type Video = {
 }
 
 type AxData = {
-    responseType?:string,
+    responseType?:"stream"|"blob"|"arraybuffer" | null,
     onDownloadProgress?:any,
     headers?:{
         Authorization?:string,
         "Content-Type"?:string
-    }
+    },
+    timeout:number,
 }
 
 type SpanRef = React.RefObject<HTMLSpanElement>;

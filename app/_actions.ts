@@ -20,6 +20,13 @@ export async function GetSongs(data:FormData):Promise<Video[]>{
     
 }
 
+function getId(url:string) {
+    const regex = /^https?:\/\/youtu\.be\/([a-zA-Z0-9_-]{11})$/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  }
+  
+
 
 const YoutubeData = async(url:any , is_playlist:boolean):Promise<Video[]> => {
     return await new Promise(async(resolve:any,reject:any) => {
@@ -35,11 +42,21 @@ const YoutubeData = async(url:any , is_playlist:boolean):Promise<Video[]> => {
                 }
                 else
                 {
-                    const videoId = urlquery.parse(`${url}` , true).query.v;
+                    const queryId = urlquery.parse(`${url}` , true).query.v;
+                    let videoId:string|null = null;
+                    if(queryId)
+                    {
+                        videoId = queryId as string;
+                    }
+                    else
+                    {
+                        videoId = getId(url);
+                    }
+                    
                     const response = await axios.get('https://www.googleapis.com/youtube/v3/videos?part=status', {
                     params: {
                         part: 'snippet',
-                        id: videoId,
+                        id: videoId ,
                         key: youtube_api_key,
                     },
                     });

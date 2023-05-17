@@ -6,11 +6,13 @@ import Notification from '@/components/Notification'
 
 export default function Home() {
 
+  const Is_notification = false;
+
   return (
     <main className="">
       <Form/>
       <Footer/>
-      <Notification/>
+      {Is_notification && <Notification/>}
     </main>
   )
 }

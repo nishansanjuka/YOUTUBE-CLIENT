@@ -3,6 +3,9 @@
 import Footer from '@/components/Footer';
 import { useEffect } from 'react';
 import { BsFillEmojiFrownFill } from 'react-icons/bs';
+import { useDispatch, useSelector } from 'react-redux';
+import { Rootstate } from './Redux/store';
+import { setIsSearching } from './Redux/Features/search/searchSlice';
  
 export default function Error({
   error,
@@ -11,10 +14,12 @@ export default function Error({
   error: Error;
   reset: () => void;
 }) {
+  
+  const VideoData = useSelector((state:Rootstate) => state.youtube.video);
+  const dispatch = useDispatch();
   useEffect(() => {
-    // Log the error to an error reporting service
-    console.error(error);
-  }, [error]);
+    dispatch(setIsSearching(false));
+  },[])
  
   return (
     <div>
