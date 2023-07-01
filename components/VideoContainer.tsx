@@ -1,21 +1,19 @@
 "use cleint";
-import {useEffect , useState , useRef, CSSProperties} from 'react';
+import {useEffect , useState , useRef} from 'react';
 import Image from 'next/image';
 import React from 'react'
 import axios, { AxiosProgressEvent } from 'axios';
 import { BeatLoader  } from 'react-spinners';
 import { GetDuration } from '@/app/_actions';
-import { Stream } from 'stream';
-const concat = require('concat-stream');
-import { Readable } from 'stream';
 
 
 let durationforId:string;
 type Props = {
-    data:Video
+    data:Video,
+    downloadAll:boolean
 }
 
-export default function VideoContainer({data}:Props) {
+export default function VideoContainer({data , downloadAll}:Props) {
 
 
   const [videoId, setvideoId] = useState<string>("");
@@ -24,7 +22,8 @@ export default function VideoContainer({data}:Props) {
   const Progressbar:SpanRef = useRef<HTMLSpanElement>(null);
   const ProgressbarText:ParagraphRef = useRef<HTMLParagraphElement>(null);
   const [Duration, setDuration] = useState<string>("");
-  const [DurationObject, setDurationObject] = useState<DurationData | null>(null);
+  const [checkDownloaded, setCheckDownloaded] = useState(false);
+
   const options:AxData = {
     responseType:'arraybuffer',
     onDownloadProgress :DownloadProgress,
@@ -34,6 +33,8 @@ export default function VideoContainer({data}:Props) {
     },
     timeout:3600000
   }
+  
+
 
   useEffect(() => {
     if(data.status && data.status.privacyStatus === "public")
@@ -58,17 +59,37 @@ export default function VideoContainer({data}:Props) {
   useEffect(() => {
     const dos = async() => {
       const duration:DurationData = await GetDuration(durationforId);
-      setDurationObject(duration);
       let dustring = `${duration.years > 0 ? duration.years + ":" : "" }${duration.months > 0 ? duration.months + ":" : "" }${duration.days > 0 ? duration.days + ":" : ""}${duration.hours > 0 ? duration.hours + ":" : ""}${duration.minutes > 0 ? duration.minutes + ":" : "" }${duration.seconds> 0 ? duration.seconds: ""}`
       const modifiedString = dustring.replace(/(\d+)/g, (match) => {
         return match.padStart(2, '0');
       });
-      setDuration(modifiedString);
+
+      if(duration.minutes == 0)
+      {
+        setDuration("00:"+modifiedString);
+      }
+      else
+      {
+        setDuration(modifiedString);
+      }
     }   
     dos();
 
     
   }, [])
+
+  
+  useEffect(() => {
+    async function Dos(){
+      await HandleDownload();
+    }
+
+    if(downloadAll)
+    {
+      Dos();
+    }
+  }, [downloadAll])
+  
 
   
 
@@ -93,6 +114,7 @@ export default function VideoContainer({data}:Props) {
     }
 
   }
+  
 
   const HandleDownload = async() => {
     setIsDownloading(true);
@@ -113,6 +135,8 @@ export default function VideoContainer({data}:Props) {
         }
         setIsDownloading(false);
         setIsData(false);
+        setCheckDownloaded(true);
+        downloadAll = false;
       }
       catch(e:any)
       {
@@ -148,7 +172,6 @@ export default function VideoContainer({data}:Props) {
       }
     })
   }
-  
 
 
 
@@ -164,8 +187,9 @@ export default function VideoContainer({data}:Props) {
         <h1 className=' text-white uppercase md:text-sm xl:text-lg mb-2'>{data.snippet.title}</h1>
         <p className='text-neutral-400 text-xs mb-2 font-light'>youtube video address: <a target='_blank' className='underline underline-offset-2' href={`https://www.youtube.com/watch?v=${videoId}`}>{`https://www.youtube.com/watch?v=${videoId}`}</a></p>
         {Duration && (<p className='text-neutral-500 text-xs font-light mb-2'>Duration - {Duration}</p>)}
-        <button onClick={HandleDownload} className='w-fit flex items-center hover:bg-green-500 active:bg-violet-700 transition duration-500 px-5 py-2 font-extralight bg-green-700 text-white rounded text-xs'>
+        <button disabled={checkDownloaded} onClick={HandleDownload} className='w-fit flex items-center hover:bg-green-500 disabled:bg-stone-950 active:bg-violet-700 transition duration-500 px-5 py-2 font-extralight tracking-wider bg-green-700 text-white rounded text-xs'>
           {IsDownloading ? "Downloading" :"Download"}
+          {checkDownloaded && "ed !"}
           {IsDownloading && (<BeatLoader 
             className='ml-2'
             color="#CBCBCB"
@@ -175,7 +199,7 @@ export default function VideoContainer({data}:Props) {
         {IsData && (
           <div className='flex items-center mt-3 space-x-2'>
             <span className='relative w-full bg-zinc-900 h-[1px] '>
-              <span ref={Progressbar} id={data.id} className='absolute transition duration-700 top-0 left-0 gradient bottom-0'></span>
+              <span ref={Progressbar} id={data.id} className='absolute transition-transform duration-700 top-0 left-0 gradient bottom-0'></span>
             </span>
             <p ref={ProgressbarText} className='text-xs font-light text-neutral-500'>{ProgressbarText.current?.textContent || `0%`}</p>
           </div>

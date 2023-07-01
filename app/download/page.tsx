@@ -4,9 +4,13 @@ import VideoContainer from '@/components/VideoContainer';
 import {useSelector , useDispatch, Provider} from 'react-redux';
 import { Rootstate, store } from '../Redux/store';
 import { setIsSearching } from '../Redux/Features/search/searchSlice';
+
+
 const Download = async() => {
   
   const VideoData:Video[] = useSelector((state:Rootstate) => state.youtube.video) as Video[];
+
+  const [isDownloadAll, setisDownloadAll] = useState(false);
   const dispatch = useDispatch();
   useEffect(() => {
     if(!VideoData) {
@@ -20,26 +24,41 @@ const Download = async() => {
     }
     
   },[])
+  
 
   const HandleRedirect = () => {
     window.location.href = '/';
   }
 
+  const HandleAllDownload = () => {
+    setisDownloadAll(!isDownloadAll);
+  }
+
+  useEffect(() => {
+    if(isDownloadAll)
+    {
+      console.log('downloading all ...');
+    }
+  }, [isDownloadAll])
+  
 
 
   if(VideoData && VideoData?.length > 0)
   {
     return (
       <Provider  store={store}>
+          <title>{VideoData[0].snippet.title}</title>
           <div className='mt-[150px] w-full flex  flex-col space-y-10 my-20 justify-center items-center'>
-          <div className='w-[80%] xl:w-[60%]'>
+          <div className='w-[80%] xl:w-[60%] flex justify-between items-center'>
             {VideoData && VideoData?.length > 1 && (<p className='text-neutral-500 font-light underline underline-offset-4 capitalize'>{VideoData?.filter(item => item.status && item.status.privacyStatus === 'public').length} public media items found</p>)}
+
+            <button onClick={HandleAllDownload} className='w-fit flex items-center hover:bg-green-500 active:bg-violet-700 transition duration-500 px-5 py-2 font-extralight bg-green-700 text-white rounded text-xs'>Download All</button>
           </div>
           {VideoData && VideoData.map((video:Video) => {
             if(video.status && video.status.privacyStatus === 'public'){
               return(
                 <div className='w-[80%] xl:w-[60%] bg-neutral-800 shadow-lg' key={`${video.etag} ${video.id}`}>
-                    <VideoContainer data={video}/>
+                    <VideoContainer data={video} downloadAll={isDownloadAll}/>
                 </div>
               )
             }

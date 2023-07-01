@@ -20,7 +20,7 @@ export default function Form(){
             dispatch(setYoutubeData(videoData));
 
         } catch (error:any) {
-            throw new Error(`It's looks like you did something wrong! check your url`)
+            throw new Error(`It's looks like you did something wrong! check your url ${error.message}`)
         }
         redirect('/download');
     }
